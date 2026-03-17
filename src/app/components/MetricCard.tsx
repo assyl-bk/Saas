@@ -33,7 +33,7 @@ export function MetricCard({ label, value, change, format = "number", size = "md
     >
       <p className="text-sm text-foreground-secondary mb-2">{label}</p>
       <div className="flex items-baseline gap-2 mb-2">
-        <span className={`${valueSize[size]} font-bold font-mono text-white`}>
+        <span className={`${valueSize[size]} font-bold font-mono text-foreground`}>
           {formatValue(value)}
         </span>
       </div>

@@ -1,5 +1,6 @@
 import { LayoutDashboard, Zap, Database, BarChart3, Settings, Key } from "lucide-react";
 import { motion } from "motion/react";
+import { useTheme } from "../context/ThemeContext";
 
 interface SidebarProps {
   activePage: string;
@@ -15,9 +16,14 @@ const menuItems = [
 ];
 
 export function Sidebar({ activePage, onPageChange }: SidebarProps) {
+  const { theme } = useTheme();
   return (
     <motion.aside
-      className="w-[280px] h-screen fixed left-0 top-0 backdrop-blur-xl bg-[#111827]/95 border-r border-white/10 z-40"
+      className={`w-[280px] h-screen fixed left-0 top-0 backdrop-blur-xl border-r z-40 transition-colors ${
+        theme === 'dark' 
+          ? 'bg-[#111827]/95 border-white/10' 
+          : 'bg-white/95 border-gray-200'
+      }`}
       initial={{ x: -280 }}
       animate={{ x: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
@@ -37,7 +43,9 @@ export function Sidebar({ activePage, onPageChange }: SidebarProps) {
                   w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative
                   ${isActive 
                     ? "bg-primary/10 text-primary" 
-                    : "text-foreground-secondary hover:bg-white/5 hover:text-white"
+                    : theme === 'dark'
+                    ? "text-foreground-secondary hover:bg-white/5 hover:text-white"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
                   }
                 `}
                 initial={{ opacity: 0, x: -20 }}
@@ -67,7 +75,9 @@ export function Sidebar({ activePage, onPageChange }: SidebarProps) {
               <Key className="w-4 h-4 text-primary" />
               <span className="text-xs font-semibold text-primary">API Access</span>
             </div>
-            <p className="text-xs text-foreground-secondary mb-3">
+            <p className={`text-xs mb-3 ${
+              theme === 'dark' ? 'text-foreground-secondary' : 'text-gray-600'
+            }`}>
               Connect your systems with our REST API
             </p>
             <button className="w-full py-2 px-3 rounded-lg bg-primary/20 hover:bg-primary/30 text-primary text-xs font-medium transition-colors border border-primary/30">

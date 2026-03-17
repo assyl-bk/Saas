@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { GlassCard } from "./GlassCard";
-import { Upload, Search, Download, Eye, Edit, Trash2, CheckCircle, AlertCircle, X } from "lucide-react";
+import { Upload, Search, Download, Eye, Edit, Trash2, CheckCircle, AlertCircle, X, TrendingUp } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 interface Dataset {
@@ -10,14 +10,61 @@ interface Dataset {
   records: string;
   lastUpdated: string;
   quality: number;
+  missingRecords?: string;
+  outliers?: string;
 }
 
 const mockDatasets: Dataset[] = [
-  { id: "1", name: "Historical Load 2023-2025", type: "Time Series", records: "1,250,000", lastUpdated: "2 hours ago", quality: 98 },
-  { id: "2", name: "Weather Data - Regional", type: "Weather", records: "890,000", lastUpdated: "1 day ago", quality: 95 },
-  { id: "3", name: "Demand Forecast Archive", type: "Forecast", records: "2,100,000", lastUpdated: "3 hours ago", quality: 97 },
-  { id: "4", name: "Grid Topology Data", type: "Infrastructure", records: "45,000", lastUpdated: "1 week ago", quality: 92 },
-  { id: "5", name: "Real-Time Sensor Feed", type: "Streaming", records: "Live", lastUpdated: "Live", quality: 99 },
+  { 
+    id: "1", 
+    name: "Historical Demand 2023-2025", 
+    type: "Time Series", 
+    records: "1,250,000", 
+    lastUpdated: "2 hours ago", 
+    quality: 98,
+    missingRecords: "0.2%",
+    outliers: "0.4%"
+  },
+  { 
+    id: "2", 
+    name: "Weather Data - Regional", 
+    type: "Exogenous", 
+    records: "890,000", 
+    lastUpdated: "1 day ago", 
+    quality: 95,
+    missingRecords: "1.2%",
+    outliers: "0.8%"
+  },
+  { 
+    id: "3", 
+    name: "Peak Demand Archive", 
+    type: "Forecast", 
+    records: "2,100,000", 
+    lastUpdated: "3 hours ago", 
+    quality: 97,
+    missingRecords: "0.1%",
+    outliers: "0.3%"
+  },
+  { 
+    id: "4", 
+    name: "Grid Topology Events", 
+    type: "Events", 
+    records: "45,000", 
+    lastUpdated: "1 week ago", 
+    quality: 92,
+    missingRecords: "3.2%",
+    outliers: "1.1%"
+  },
+  { 
+    id: "5", 
+    name: "Real-Time Sensor Feed", 
+    type: "Streaming", 
+    records: "Live", 
+    lastUpdated: "Live", 
+    quality: 99,
+    missingRecords: "0%",
+    outliers: "0.1%"
+  },
 ];
 
 export function DataPage() {
@@ -63,15 +110,43 @@ export function DataPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-1">Data Sources</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-1">Time Series Management</h2>
           <p className="text-sm text-foreground-secondary">
-            Manage datasets and upload new data for forecasting
+            Upload, manage, and preprocess energy demand data for forecasting
           </p>
         </div>
         <button className="px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-[#2563EB] hover:shadow-lg hover:shadow-primary/30 text-white font-semibold transition-all flex items-center gap-2">
           <Upload className="w-5 h-5" />
-          Upload Dataset
+          Upload Time Series
         </button>
+      </div>
+
+      {/* Data Quality Summary Cards */}
+      <div className="grid grid-cols-3 gap-4">
+        <GlassCard className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-foreground-secondary">Total Records</span>
+            <TrendingUp className="w-4 h-4 text-primary" />
+          </div>
+          <div className="text-2xl font-bold text-foreground">4.3M+</div>
+          <div className="text-xs text-muted-foreground mt-1">Across all datasets</div>
+        </GlassCard>
+        <GlassCard className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-foreground-secondary">Avg Quality Score</span>
+            <CheckCircle className="w-4 h-4 text-success" />
+          </div>
+          <div className="text-2xl font-bold text-success">96.2%</div>
+          <div className="text-xs text-muted-foreground mt-1">Excellent data quality</div>
+        </GlassCard>
+        <GlassCard className="p-4">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm text-foreground-secondary">Active Sources</span>
+            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+          </div>
+          <div className="text-2xl font-bold text-foreground">5</div>
+          <div className="text-xs text-muted-foreground mt-1">1 streaming live</div>
+        </GlassCard>
       </div>
 
       {/* Search and Filters */}
@@ -116,15 +191,18 @@ export function DataPage() {
           <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center border border-primary/30">
             <Upload className="w-10 h-10 text-primary" />
           </div>
-          <h3 className="text-xl font-bold text-white mb-2">Upload Your Dataset</h3>
+          <h3 className="text-xl font-bold text-foreground mb-2">Upload Time Series Data</h3>
           <p className="text-foreground-secondary mb-4">
-            Drag & drop your CSV or Excel files here
+            Drag & drop your CSV, Excel, or Parquet files with energy demand data
           </p>
           <button className="px-6 py-3 rounded-lg bg-primary/20 hover:bg-primary/30 text-primary font-medium transition-colors border border-primary/30">
             or click to browse
           </button>
           <p className="text-xs text-muted-foreground mt-4">
-            Supported formats: CSV, XLSX, JSON (Max 500MB)
+            Supported formats: CSV, XLSX, Parquet, JSON (Max 500MB)
+          </p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Required columns: timestamp, value (demand/load). Optional: temperature, humidity, other exogenous variables
           </p>
         </motion.div>
       )}
@@ -173,7 +251,7 @@ export function DataPage() {
                           </span>
                         </div>
                         <div>
-                          <p className="font-medium text-white">{dataset.name}</p>
+                          <p className="font-medium text-foreground">{dataset.name}</p>
                           <p className="text-xs text-muted-foreground">ID: {dataset.id}</p>
                         </div>
                       </div>
@@ -184,7 +262,7 @@ export function DataPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="font-mono text-sm text-white">{dataset.records}</span>
+                      <span className="font-mono text-sm text-foreground">{dataset.records}</span>
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm text-foreground-secondary">{dataset.lastUpdated}</span>
@@ -252,7 +330,7 @@ export function DataPage() {
                 {/* Modal Header */}
                 <div className="px-8 py-6 border-b border-white/10 flex items-center justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-white mb-1">{selectedDataset.name}</h3>
+                    <h3 className="text-xl font-bold text-foreground mb-1">{selectedDataset.name}</h3>
                     <p className="text-sm text-foreground-secondary">Dataset Preview & Statistics</p>
                   </div>
                   <button
@@ -267,15 +345,15 @@ export function DataPage() {
                 <div className="px-8 py-6 grid grid-cols-4 gap-4 border-b border-white/10">
                   <div>
                     <p className="text-xs text-foreground-secondary mb-1">Mean</p>
-                    <p className="text-lg font-mono font-semibold text-white">8,234.5</p>
+                    <p className="text-lg font-mono font-semibold text-foreground">8,234.5</p>
                   </div>
                   <div>
                     <p className="text-xs text-foreground-secondary mb-1">Median</p>
-                    <p className="text-lg font-mono font-semibold text-white">8,190.2</p>
+                    <p className="text-lg font-mono font-semibold text-foreground">8,190.2</p>
                   </div>
                   <div>
                     <p className="text-xs text-foreground-secondary mb-1">Std Dev</p>
-                    <p className="text-lg font-mono font-semibold text-white">342.8</p>
+                    <p className="text-lg font-mono font-semibold text-foreground">342.8</p>
                   </div>
                   <div>
                     <p className="text-xs text-foreground-secondary mb-1">Missing</p>
@@ -300,13 +378,13 @@ export function DataPage() {
                           <td className="py-3 px-4 font-mono text-foreground-secondary">
                             2026-02-{String(5 - Math.floor(i / 24)).padStart(2, "0")} {String(23 - (i % 24)).padStart(2, "0")}:00
                           </td>
-                          <td className="py-3 px-4 text-right font-mono text-white">
+                          <td className="py-3 px-4 text-right font-mono text-foreground">
                             {(8000 + Math.random() * 1000).toFixed(1)}
                           </td>
-                          <td className="py-3 px-4 text-right font-mono text-white">
+                          <td className="py-3 px-4 text-right font-mono text-foreground">
                             {(20 + Math.random() * 10).toFixed(1)}
                           </td>
-                          <td className="py-3 px-4 text-right font-mono text-white">
+                          <td className="py-3 px-4 text-right font-mono text-foreground">
                             {(50 + Math.random() * 30).toFixed(1)}
                           </td>
                         </tr>
@@ -316,16 +394,42 @@ export function DataPage() {
                 </div>
 
                 {/* Modal Footer */}
-                <div className="px-8 py-6 border-t border-white/10 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-success" />
-                    <span className="text-sm text-foreground-secondary">
-                      Data quality: <span className="text-success font-semibold">{selectedDataset.quality}%</span>
-                    </span>
+                <div className="px-8 py-6 border-t border-white/10">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="w-5 h-5 text-success" />
+                        <span className="text-sm text-foreground-secondary">
+                          Quality: <span className="text-success font-semibold">{selectedDataset.quality}%</span>
+                        </span>
+                      </div>
+                      {selectedDataset.missingRecords && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-foreground-secondary">
+                            Missing: <span className="text-warning font-semibold">{selectedDataset.missingRecords}</span>
+                          </span>
+                        </div>
+                      )}
+                      {selectedDataset.outliers && (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-foreground-secondary">
+                            Outliers: <span className="text-warning font-semibold">{selectedDataset.outliers}</span>
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <button className="px-6 py-3 rounded-lg bg-primary/20 hover:bg-primary/30 text-primary font-medium transition-colors border border-primary/30">
-                    Apply Preprocessing
-                  </button>
+                  <div className="flex gap-3">
+                    <button className="flex-1 px-6 py-3 rounded-lg bg-primary text-white font-medium hover:bg-primary/90 transition-colors">
+                      Auto-Preprocess (Fill Missing + Remove Outliers)
+                    </button>
+                    <button className="px-6 py-3 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium transition-colors border border-white/10">
+                      Manual Configuration
+                    </button>
+                    <button className="px-6 py-3 rounded-lg bg-success/20 hover:bg-success/30 text-success font-medium transition-colors border border-success/30">
+                      Use As-Is
+                    </button>
+                  </div>
                 </div>
               </GlassCard>
             </motion.div>

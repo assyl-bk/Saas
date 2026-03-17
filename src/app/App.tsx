@@ -7,11 +7,21 @@ import { DataPage } from "./components/DataPage";
 import { AnalyticsPage } from "./components/AnalyticsPage";
 import { SettingsPage } from "./components/SettingsPage";
 import { CommandPalette } from "./components/CommandPalette";
+import { AuthPage } from "./components/AuthPage";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import { motion, AnimatePresence } from "motion/react";
 
-export default function App() {
+function AppContent() {
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const { theme } = useTheme();
+  const { isAuthenticated, isLoading, user } = useAuth();
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Auth state:', { isAuthenticated, isLoading, user });
+  }, [isAuthenticated, isLoading, user]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -24,6 +34,33 @@ export default function App() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  console.log('Rendering App - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
+
+  // Show loading state while checking authentication
+  if (isLoading) {
+    console.log('Showing loading state');
+    return (
+      <div className={`min-h-screen flex items-center justify-center ${
+        theme === 'dark' 
+          ? 'bg-gradient-to-br from-[#0A1628] to-[#111827]' 
+          : 'bg-gradient-to-br from-gray-50 to-gray-100'
+      }`}>
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-foreground-secondary">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth page if not authenticated
+  if (!isAuthenticated) {
+    console.log('Showing auth page');
+    return <AuthPage />;
+  }
+
+  console.log('Showing dashboard');
 
   const renderPage = () => {
     switch (currentPage) {
@@ -43,12 +80,22 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A1628] to-[#111827] text-white">
+    <div className={`min-h-screen transition-colors duration-300 ${
+      theme === 'dark' 
+        ? 'bg-gradient-to-br from-[#0A1628] to-[#111827] text-white' 
+        : 'bg-gradient-to-br from-gray-50 to-gray-100 text-gray-900'
+    }`}>
       {/* Animated background effects */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-float" />
-        <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-purple-500/10 rounded-full blur-[120px] animate-float" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-cyan-500/5 rounded-full blur-[100px] animate-float" style={{ animationDelay: "2s" }} />
+        <div className={`absolute top-0 right-0 w-[500px] h-[500px] rounded-full blur-[120px] animate-float ${
+          theme === 'dark' ? 'bg-primary/10' : 'bg-primary/5'
+        }`} />
+        <div className={`absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full blur-[120px] animate-float ${
+          theme === 'dark' ? 'bg-purple-500/10' : 'bg-purple-500/5'
+        }`} style={{ animationDelay: "1s" }} />
+        <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full blur-[100px] animate-float ${
+          theme === 'dark' ? 'bg-cyan-500/5' : 'bg-cyan-500/3'
+        }`} style={{ animationDelay: "2s" }} />
       </div>
 
       <div className="relative z-10">
@@ -81,5 +128,15 @@ export default function App() {
         }}
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

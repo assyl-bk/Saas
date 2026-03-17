@@ -2,6 +2,7 @@ import { useState } from "react";
 import { GlassCard } from "./GlassCard";
 import { TrendingUp, TrendingDown, Activity, Zap } from "lucide-react";
 import { motion } from "motion/react";
+import { useTheme } from "../context/ThemeContext";
 import {
   LineChart,
   Line,
@@ -48,6 +49,7 @@ const metricsData = [
 ];
 
 export function AnalyticsPage() {
+  const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("Overview");
 
   return (
@@ -55,7 +57,7 @@ export function AnalyticsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-1">Analytics & Insights</h2>
+          <h2 className="text-2xl font-bold text-foreground mb-1">Analytics & Insights</h2>
           <p className="text-sm text-foreground-secondary">
             Energy consumption patterns and demand trends
           </p>
@@ -78,7 +80,7 @@ export function AnalyticsPage() {
               <div className="flex items-start justify-between mb-3">
                 <div>
                   <p className="text-xs text-foreground-secondary mb-1">{metric.name}</p>
-                  <p className="text-2xl font-bold font-mono text-white">{metric.value}</p>
+                  <p className="text-2xl font-bold font-mono text-foreground">{metric.value}</p>
                   {metric.unit && <p className="text-sm text-foreground-secondary">{metric.unit}</p>}
                 </div>
                 <div className={`p-2 rounded-lg ${metric.good ? "bg-success/20" : "bg-critical/20"}`}>
@@ -121,18 +123,34 @@ export function AnalyticsPage() {
       {activeTab === "Overview" && (
         <div className="grid grid-cols-2 gap-6">
           <GlassCard>
-            <h3 className="text-lg font-bold text-white mb-4">Demand by Hour of Day</h3>
+            <h3 className="text-lg font-bold text-foreground mb-4">Demand by Hour of Day</h3>
             <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={demandByHourData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="hour" stroke="#9CA3AF" tick={{ fill: "#9CA3AF", fontSize: 11 }} />
-                  <YAxis stroke="#9CA3AF" label={{ value: "Demand (MW)", angle: -90, position: "insideLeft", fill: "#9CA3AF" }} />
+                  <CartesianGrid 
+                    strokeDasharray="3 3" 
+                    stroke={theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} 
+                  />
+                  <XAxis 
+                    dataKey="hour" 
+                    stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} 
+                    tick={{ fill: theme === 'dark' ? '#9CA3AF' : '#4B5563', fontSize: 11 }} 
+                  />
+                  <YAxis 
+                    stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} 
+                    label={{ 
+                      value: "Demand (MW)", 
+                      angle: -90, 
+                      position: "insideLeft", 
+                      fill: theme === 'dark' ? '#9CA3AF' : '#4B5563' 
+                    }} 
+                  />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(17, 24, 39, 0.95)",
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      backgroundColor: theme === 'dark' ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                      border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)',
                       borderRadius: "8px",
+                      color: theme === 'dark' ? '#FFFFFF' : '#111827',
                     }}
                   />
                   <Bar dataKey="demand" fill="#3B82F6" radius={[8, 8, 0, 0]} />
@@ -142,18 +160,34 @@ export function AnalyticsPage() {
           </GlassCard>
 
           <GlassCard>
-            <h3 className="text-lg font-bold text-white mb-4">Weekly Demand Pattern</h3>
+            <h3 className="text-lg font-bold text-foreground mb-4">Weekly Demand Pattern</h3>
             <div className="h-[400px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={demandByDayData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="day" stroke="#9CA3AF" tick={{ fill: "#9CA3AF" }} />
-                  <YAxis stroke="#9CA3AF" label={{ value: "Avg Demand (MW)", angle: -90, position: "insideLeft", fill: "#9CA3AF" }} />
+                  <CartesianGrid 
+                    strokeDasharray="3 3" 
+                    stroke={theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} 
+                  />
+                  <XAxis 
+                    dataKey="day" 
+                    stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} 
+                    tick={{ fill: theme === 'dark' ? '#9CA3AF' : '#4B5563' }} 
+                  />
+                  <YAxis 
+                    stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} 
+                    label={{ 
+                      value: "Avg Demand (MW)", 
+                      angle: -90, 
+                      position: "insideLeft", 
+                      fill: theme === 'dark' ? '#9CA3AF' : '#4B5563' 
+                    }} 
+                  />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(17, 24, 39, 0.95)",
-                      border: "1px solid rgba(255, 255, 255, 0.2)",
+                      backgroundColor: theme === 'dark' ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                      border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)',
                       borderRadius: "8px",
+                      color: theme === 'dark' ? '#FFFFFF' : '#111827',
                     }}
                   />
                   <Bar dataKey="demand" fill="#10B981" radius={[8, 8, 0, 0]} />
@@ -166,7 +200,7 @@ export function AnalyticsPage() {
 
       {activeTab === "Patterns" && (
         <GlassCard>
-          <h3 className="text-lg font-bold text-white mb-4">Seasonal Demand Patterns</h3>
+          <h3 className="text-lg font-bold text-foreground mb-4">Seasonal Demand Patterns</h3>
           <div className="h-[500px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={seasonalData} margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
@@ -176,14 +210,30 @@ export function AnalyticsPage() {
                     <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="month" stroke="#9CA3AF" />
-                <YAxis stroke="#9CA3AF" label={{ value: "Demand (MW)", angle: -90, position: "insideLeft", fill: "#9CA3AF" }} />
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke={theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} 
+                />
+                <XAxis 
+                  dataKey="month" 
+                  stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'}
+                  tick={{ fill: theme === 'dark' ? '#9CA3AF' : '#4B5563' }}
+                />
+                <YAxis 
+                  stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} 
+                  label={{ 
+                    value: "Demand (MW)", 
+                    angle: -90, 
+                    position: "insideLeft", 
+                    fill: theme === 'dark' ? '#9CA3AF' : '#4B5563' 
+                  }} 
+                />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "rgba(17, 24, 39, 0.95)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    backgroundColor: theme === 'dark' ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                    border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)',
                     borderRadius: "8px",
+                    color: theme === 'dark' ? '#FFFFFF' : '#111827',
                   }}
                 />
                 <Area
@@ -199,15 +249,15 @@ export function AnalyticsPage() {
           <div className="mt-6 grid grid-cols-3 gap-4">
             <div className="p-4 rounded-lg bg-white/5 border border-white/10">
               <p className="text-xs text-foreground-secondary mb-1">Summer Peak</p>
-              <p className="text-xl font-bold text-white">+15%</p>
+              <p className="text-xl font-bold text-foreground">+15%</p>
             </div>
             <div className="p-4 rounded-lg bg-white/5 border border-white/10">
               <p className="text-xs text-foreground-secondary mb-1">Winter Peak</p>
-              <p className="text-xl font-bold text-white">+8%</p>
+              <p className="text-xl font-bold text-foreground">+8%</p>
             </div>
             <div className="p-4 rounded-lg bg-white/5 border border-white/10">
               <p className="text-xs text-foreground-secondary mb-1">Spring/Fall</p>
-              <p className="text-xl font-bold text-white">Baseline</p>
+              <p className="text-xl font-bold text-foreground">Baseline</p>
             </div>
           </div>
         </GlassCard>
@@ -215,18 +265,35 @@ export function AnalyticsPage() {
 
       {activeTab === "Trends" && (
         <GlassCard>
-          <h3 className="text-lg font-bold text-white mb-4">30-Day Demand Trend</h3>
+          <h3 className="text-lg font-bold text-foreground mb-4">30-Day Demand Trend</h3>
           <div className="h-[500px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData} margin={{ top: 20, right: 30, bottom: 20, left: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                <XAxis dataKey="day" stroke="#9CA3AF" tick={{ fontSize: 10 }} interval={4} />
-                <YAxis stroke="#9CA3AF" label={{ value: "Demand (MW)", angle: -90, position: "insideLeft", fill: "#9CA3AF" }} />
+                <CartesianGrid 
+                  strokeDasharray="3 3" 
+                  stroke={theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'} 
+                />
+                <XAxis 
+                  dataKey="day" 
+                  stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} 
+                  tick={{ fill: theme === 'dark' ? '#9CA3AF' : '#4B5563', fontSize: 10 }} 
+                  interval={4} 
+                />
+                <YAxis 
+                  stroke={theme === 'dark' ? '#9CA3AF' : '#6B7280'} 
+                  label={{ 
+                    value: "Demand (MW)", 
+                    angle: -90, 
+                    position: "insideLeft", 
+                    fill: theme === 'dark' ? '#9CA3AF' : '#4B5563' 
+                  }} 
+                />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "rgba(17, 24, 39, 0.95)",
-                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    backgroundColor: theme === 'dark' ? 'rgba(17, 24, 39, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                    border: theme === 'dark' ? '1px solid rgba(255, 255, 255, 0.2)' : '1px solid rgba(0, 0, 0, 0.2)',
                     borderRadius: "8px",
+                    color: theme === 'dark' ? '#FFFFFF' : '#111827',
                   }}
                 />
                 <Line
@@ -254,7 +321,7 @@ export function AnalyticsPage() {
 
       {activeTab === "Comparisons" && (
         <GlassCard>
-          <h3 className="text-lg font-bold text-white mb-4">Period Comparisons</h3>
+          <h3 className="text-lg font-bold text-foreground mb-4">Period Comparisons</h3>
           <div className="h-[500px] flex items-center justify-center">
             <div className="text-center">
               <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center border border-primary/30">

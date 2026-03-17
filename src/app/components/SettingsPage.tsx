@@ -53,7 +53,7 @@ export function SettingsPage() {
         {activeTab === "profile" && (
           <>
             <div>
-              <h2 className="text-2xl font-bold text-white mb-1">Profile Settings</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-1">Profile Settings</h2>
               <p className="text-sm text-foreground-secondary">
                 Manage your personal information and preferences
               </p>
@@ -72,7 +72,7 @@ export function SettingsPage() {
                   </button>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xl font-bold text-white mb-1">John Doe</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-1">John Doe</h3>
                   <p className="text-sm text-foreground-secondary mb-4">System Administrator</p>
                   <div className="flex gap-2">
                     <button className="px-4 py-2 rounded-lg bg-primary/20 text-primary border border-primary/30 text-sm font-medium hover:bg-primary/30 transition-colors">
@@ -139,7 +139,7 @@ export function SettingsPage() {
             </GlassCard>
 
             <GlassCard>
-              <h3 className="text-lg font-bold text-white mb-4">Notification Preferences</h3>
+              <h3 className="text-lg font-bold text-foreground mb-4">Notification Preferences</h3>
               <div className="space-y-4">
                 {[
                   { label: "Email Notifications", desc: "Receive forecast alerts via email" },
@@ -149,7 +149,7 @@ export function SettingsPage() {
                 ].map((item, i) => (
                   <div key={i} className="flex items-center justify-between py-3">
                     <div>
-                      <p className="font-medium text-white">{item.label}</p>
+                      <p className="font-medium text-foreground">{item.label}</p>
                       <p className="text-sm text-foreground-secondary">{item.desc}</p>
                     </div>
                     <label className="relative inline-block w-12 h-6">
@@ -168,7 +168,7 @@ export function SettingsPage() {
           <>
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-white mb-1">Team Management</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-1">Team Management</h2>
                 <p className="text-sm text-foreground-secondary">
                   Manage team members and their permissions
                 </p>
@@ -211,7 +211,7 @@ export function SettingsPage() {
                             {member.avatar}
                           </div>
                           <div>
-                            <p className="font-medium text-white">{member.name}</p>
+                            <p className="font-medium text-foreground">{member.name}</p>
                             <p className="text-xs text-foreground-secondary">{member.email}</p>
                           </div>
                         </div>
@@ -251,7 +251,7 @@ export function SettingsPage() {
         {activeTab === "api" && (
           <>
             <div>
-              <h2 className="text-2xl font-bold text-white mb-1">API Keys</h2>
+              <h2 className="text-2xl font-bold text-foreground mb-1">API Keys</h2>
               <p className="text-sm text-foreground-secondary">
                 Manage API keys for programmatic access
               </p>
@@ -261,7 +261,7 @@ export function SettingsPage() {
               <div className="flex items-start gap-3">
                 <Shield className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
                 <div>
-                  <h3 className="font-semibold text-white mb-1">Keep your API keys secure</h3>
+                  <h3 className="font-semibold text-foreground mb-1">Keep your API keys secure</h3>
                   <p className="text-sm text-foreground-secondary">
                     Never share your API keys in public repositories or client-side code. Store them securely using environment variables.
                   </p>
@@ -280,7 +280,7 @@ export function SettingsPage() {
                   <GlassCard>
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h3 className="font-semibold text-white mb-1">{key.name}</h3>
+                        <h3 className="font-semibold text-foreground mb-1">{key.name}</h3>
                         <p className="text-sm font-mono text-foreground-secondary">{key.key}</p>
                       </div>
                       <button className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-foreground-secondary text-sm font-medium transition-colors">
