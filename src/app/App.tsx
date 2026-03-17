@@ -9,14 +9,24 @@ import { SettingsPage } from "./components/SettingsPage";
 import { CommandPalette } from "./components/CommandPalette";
 import { AuthPage } from "./components/AuthPage";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider, useAuth, UserRole } from "./context/AuthContext";
 import { motion, AnimatePresence } from "motion/react";
+
+const PAGE_ACCESS: Record<UserRole, string[]> = {
+  energy_grid_operator: ["dashboard", "forecast", "data", "analytics"],
+  energy_trader: ["dashboard", "forecast", "data", "analytics"],
+  energy_planner: ["dashboard", "forecast", "data", "analytics"],
+  system_administrator: ["dashboard", "forecast", "data", "analytics", "settings"],
+};
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState("dashboard");
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const { theme } = useTheme();
   const { isAuthenticated, isLoading, user } = useAuth();
+  const defaultRole: UserRole = "energy_grid_operator";
+  const currentRole: UserRole = user?.role ?? defaultRole;
+  const allowedPages = PAGE_ACCESS[currentRole] ?? PAGE_ACCESS[defaultRole];
 
   // Debug logging
   useEffect(() => {
@@ -34,6 +44,13 @@ function AppContent() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
+
+  // Validate current page is in allowed pages for this role
+  useEffect(() => {
+    if (!allowedPages.includes(currentPage)) {
+      setCurrentPage(allowedPages[0]);
+    }
+  }, [allowedPages, currentPage]);
 
   console.log('Rendering App - isAuthenticated:', isAuthenticated, 'isLoading:', isLoading);
 
@@ -101,7 +118,7 @@ function AppContent() {
       <div className="relative z-10">
         <Header />
         <div className="flex">
-          <Sidebar activePage={currentPage} onPageChange={setCurrentPage} />
+          <Sidebar activePage={currentPage} onPageChange={setCurrentPage} allowedPages={allowedPages} />
           <main className="flex-1 ml-[280px] p-8">
             <AnimatePresence mode="wait">
               <motion.div
@@ -122,6 +139,7 @@ function AppContent() {
       <CommandPalette
         isOpen={isCommandPaletteOpen}
         onClose={() => setIsCommandPaletteOpen(false)}
+        allowedPages={allowedPages}
         onNavigate={(page) => {
           setCurrentPage(page);
           setIsCommandPaletteOpen(false);

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { GlassCard } from "./GlassCard";
 import { User, Users, CreditCard, Key, Settings as SettingsIcon, Activity, Shield, Mail, Bell } from "lucide-react";
 import { motion } from "motion/react";
+import { useAuth } from "../context/AuthContext";
 
 const settingsTabs = [
   { id: "profile", label: "Profile", icon: User },
@@ -22,7 +23,15 @@ const apiKeys = [
 ];
 
 export function SettingsPage() {
+  const { user, rolesMatrix } = useAuth();
   const [activeTab, setActiveTab] = useState("profile");
+
+  const roleLabels: Record<string, string> = {
+    energy_grid_operator: "Energy Grid Operator",
+    energy_trader: "Energy Trader",
+    energy_planner: "Energy Planner",
+    system_administrator: "System Administrator",
+  };
 
   return (
     <div className="grid grid-cols-[250px_1fr] gap-6">
@@ -135,6 +144,30 @@ export function SettingsPage() {
                 <button className="px-6 py-3 rounded-lg bg-gradient-to-r from-primary to-[#2563EB] text-white font-medium hover:shadow-lg hover:shadow-primary/30 transition-all">
                   Save Changes
                 </button>
+              </div>
+            </GlassCard>
+
+            <GlassCard>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-bold text-foreground">Actor Roles & Functional Needs</h3>
+                {user?.role && (
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary/20 text-primary border border-primary/30">
+                    Current Role: {roleLabels[user.role] ?? user.role}
+                  </span>
+                )}
+              </div>
+              <div className="space-y-4">
+                {rolesMatrix?.roles &&
+                  Object.entries(rolesMatrix.roles).map(([role, needs]) => (
+                    <div key={role} className="rounded-xl border border-white/10 bg-white/5 p-4">
+                      <h4 className="font-semibold text-foreground mb-2">{roleLabels[role] ?? role}</h4>
+                      <ul className="space-y-1">
+                        {needs.map((need) => (
+                          <li key={need} className="text-sm text-foreground-secondary">• {need}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
               </div>
             </GlassCard>
 

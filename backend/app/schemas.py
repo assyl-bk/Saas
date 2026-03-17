@@ -1,6 +1,13 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
+
+UserRole = Literal[
+    "energy_grid_operator",
+    "energy_trader",
+    "energy_planner",
+    "system_administrator",
+]
 
 # User Schemas
 class UserBase(BaseModel):
@@ -9,6 +16,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8)
+    role: UserRole
 
 class UserLogin(BaseModel):
     email: EmailStr
@@ -16,7 +24,7 @@ class UserLogin(BaseModel):
 
 class UserResponse(UserBase):
     id: int
-    role: str
+    role: UserRole
     is_active: bool
     created_at: datetime
 
@@ -51,3 +59,12 @@ class APIKeyResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class RoleCapabilitiesResponse(BaseModel):
+    role: UserRole
+    capabilities: list[str]
+
+
+class RolesMatrixResponse(BaseModel):
+    roles: dict[UserRole, list[str]]

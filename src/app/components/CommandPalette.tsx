@@ -6,6 +6,7 @@ interface CommandPaletteProps {
   isOpen: boolean;
   onClose: () => void;
   onNavigate: (page: string) => void;
+  allowedPages: string[];
 }
 
 const commands = [
@@ -18,13 +19,17 @@ const commands = [
   { id: "new-forecast", label: "New Forecast", icon: Calendar, category: "Actions" },
 ];
 
-export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPaletteProps) {
+export function CommandPalette({ isOpen, onClose, onNavigate, allowedPages }: CommandPaletteProps) {
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const filteredCommands = commands.filter((cmd) =>
-    cmd.label.toLowerCase().includes(query.toLowerCase())
-  );
+  const filteredCommands = commands.filter((cmd) => {
+    const isNav = cmd.category === "Navigation";
+    if (isNav && !allowedPages.includes(cmd.id)) {
+      return false;
+    }
+    return cmd.label.toLowerCase().includes(query.toLowerCase());
+  });
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -52,6 +57,9 @@ export function CommandPalette({ isOpen, onClose, onNavigate }: CommandPalettePr
   const handleSelect = (commandId: string) => {
     const navCommands = ["dashboard", "forecast", "data", "analytics", "settings"];
     if (navCommands.includes(commandId)) {
+      if (!allowedPages.includes(commandId)) {
+        return;
+      }
       onNavigate(commandId);
     }
     onClose();

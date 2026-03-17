@@ -5,6 +5,7 @@ import { useTheme } from "../context/ThemeContext";
 interface SidebarProps {
   activePage: string;
   onPageChange: (page: string) => void;
+  allowedPages: string[];
 }
 
 const menuItems = [
@@ -15,8 +16,9 @@ const menuItems = [
   { id: "settings", label: "Settings", icon: Settings },
 ];
 
-export function Sidebar({ activePage, onPageChange }: SidebarProps) {
+export function Sidebar({ activePage, onPageChange, allowedPages }: SidebarProps) {
   const { theme } = useTheme();
+  const visibleMenuItems = menuItems.filter((item) => allowedPages.includes(item.id));
   return (
     <motion.aside
       className={`w-[280px] h-screen fixed left-0 top-0 backdrop-blur-xl border-r z-40 transition-colors ${
@@ -31,7 +33,7 @@ export function Sidebar({ activePage, onPageChange }: SidebarProps) {
       <div className="flex flex-col h-full py-6">
         {/* Navigation */}
         <nav className="flex-1 px-4 space-y-2 mt-20">
-          {menuItems.map((item, index) => {
+          {visibleMenuItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = activePage === item.id;
             

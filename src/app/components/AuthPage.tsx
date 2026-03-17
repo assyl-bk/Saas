@@ -1,8 +1,15 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Zap, Mail, Lock, User, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, UserRole } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+
+const roleOptions: Array<{ value: UserRole; label: string }> = [
+  { value: 'energy_grid_operator', label: 'Energy Grid Operator' },
+  { value: 'energy_trader', label: 'Energy Trader' },
+  { value: 'energy_planner', label: 'Energy Planner' },
+  { value: 'system_administrator', label: 'System Administrator' },
+];
 
 export function AuthPage() {
   const { theme } = useTheme();
@@ -11,16 +18,19 @@ export function AuthPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
+    role: 'energy_grid_operator' as UserRole,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setIsLoading(true);
 
     try {
@@ -28,12 +38,20 @@ export function AuthPage() {
       if (isLogin) {
         await login(formData.email, formData.password);
         console.log('Login successful!');
+        // App component will redirect to dashboard automatically
       } else {
-        await signup(formData.name, formData.email, formData.password);
-        console.log('Signup successful!');
+        await signup(formData.name, formData.email, formData.password, formData.role);
+        console.log('Signup successful! Now login with your credentials.');
+        // Show success message and switch to login mode
+        setSuccessMessage(`Account created! Please login with your credentials.`);
+        setIsLogin(true);
+        setFormData(prev => ({
+          ...prev,
+          name: '',
+          password: '',
+        }));
+        setIsLoading(false);
       }
-      // If we get here, authentication was successful
-      // The App component should automatically redirect
     } catch (err: any) {
       console.error('Authentication error:', err);
       setError(err.message || 'Authentication failed');
@@ -41,7 +59,7 @@ export function AuthPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -129,6 +147,20 @@ export function AuthPage() {
             </button>
           </div>
 
+          {/* Success message */}
+          <AnimatePresence>
+            {successMessage && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-4 p-3 rounded-lg bg-green-500/10 border border-green-500/30 flex items-center gap-2"
+              >
+                <span className="text-sm text-green-400">{successMessage}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           {/* Error message */}
           <AnimatePresence>
             {error && (
@@ -176,6 +208,31 @@ export function AuthPage() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {!isLogin && (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Role
+                </label>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  required
+                  className={`w-full px-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all ${
+                    theme === 'dark'
+                      ? 'bg-white/5 border-white/10 text-white'
+                      : 'bg-white border-gray-300 text-gray-900'
+                  }`}
+                >
+                  {roleOptions.map((role) => (
+                    <option key={role.value} value={role.value}>
+                      {role.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">

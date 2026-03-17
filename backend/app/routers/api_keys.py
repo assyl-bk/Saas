@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import SQLAlchemyError
 from typing import List
 from datetime import datetime, timedelta
 from app.database import get_db
@@ -35,12 +36,19 @@ async def create_api_key(
         expires_at=expires_at
     )
     
-    db.add(new_key)
-    db.commit()
-    db.refresh(new_key)
+    try:
+        db.add(new_key)
+        db.commit()
+        db.refresh(new_key)
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not create API key"
+        )
     
     # Return with full key (only shown once)
-    response = APIKeyResponse.from_orm(new_key)
+    response = APIKeyResponse.model_validate(new_key)
     response.key = api_key  # Show full key only on creation
     return response
 
@@ -50,8 +58,14 @@ async def list_api_keys(
     db: Session = Depends(get_db)
 ):
     """List all API keys for the current user"""
-    keys = db.query(APIKey).filter(APIKey.user_id == current_user.id).all()
-    return [APIKeyResponse.from_orm(key) for key in keys]
+    try:
+        keys = db.query(APIKey).filter(APIKey.user_id == current_user.id).all()
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not list API keys"
+        )
+    return [APIKeyResponse.model_validate(key) for key in keys]
 
 @router.delete("/{key_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_api_key(
@@ -60,10 +74,16 @@ async def delete_api_key(
     db: Session = Depends(get_db)
 ):
     """Delete an API key"""
-    api_key = db.query(APIKey).filter(
-        APIKey.id == key_id,
-        APIKey.user_id == current_user.id
-    ).first()
+    try:
+        api_key = db.query(APIKey).filter(
+            APIKey.id == key_id,
+            APIKey.user_id == current_user.id
+        ).first()
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not delete API key"
+        )
     
     if not api_key:
         raise HTTPException(
@@ -71,8 +91,15 @@ async def delete_api_key(
             detail="API key not found"
         )
     
-    db.delete(api_key)
-    db.commit()
+    try:
+        db.delete(api_key)
+        db.commit()
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not delete API key"
+        )
     return None
 
 @router.patch("/{key_id}/deactivate", response_model=APIKeyResponse)
@@ -82,10 +109,16 @@ async def deactivate_api_key(
     db: Session = Depends(get_db)
 ):
     """Deactivate an API key"""
-    api_key = db.query(APIKey).filter(
-        APIKey.id == key_id,
-        APIKey.user_id == current_user.id
-    ).first()
+    try:
+        api_key = db.query(APIKey).filter(
+            APIKey.id == key_id,
+            APIKey.user_id == current_user.id
+        ).first()
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not update API key"
+        )
     
     if not api_key:
         raise HTTPException(
@@ -93,11 +126,18 @@ async def deactivate_api_key(
             detail="API key not found"
         )
     
-    api_key.is_active = False
-    db.commit()
-    db.refresh(api_key)
-    
-    return APIKeyResponse.from_orm(api_key)
+    try:
+        setattr(api_key, "is_active", False)
+        db.commit()
+        db.refresh(api_key)
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not update API key"
+        )
+
+    return APIKeyResponse.model_validate(api_key)
 
 @router.patch("/{key_id}/activate", response_model=APIKeyResponse)
 async def activate_api_key(
@@ -106,10 +146,16 @@ async def activate_api_key(
     db: Session = Depends(get_db)
 ):
     """Activate an API key"""
-    api_key = db.query(APIKey).filter(
-        APIKey.id == key_id,
-        APIKey.user_id == current_user.id
-    ).first()
+    try:
+        api_key = db.query(APIKey).filter(
+            APIKey.id == key_id,
+            APIKey.user_id == current_user.id
+        ).first()
+    except SQLAlchemyError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not update API key"
+        )
     
     if not api_key:
         raise HTTPException(
@@ -117,8 +163,15 @@ async def activate_api_key(
             detail="API key not found"
         )
     
-    api_key.is_active = True
-    db.commit()
-    db.refresh(api_key)
-    
-    return APIKeyResponse.from_orm(api_key)
+    try:
+        setattr(api_key, "is_active", True)
+        db.commit()
+        db.refresh(api_key)
+    except SQLAlchemyError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Could not update API key"
+        )
+
+    return APIKeyResponse.model_validate(api_key)
