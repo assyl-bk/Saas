@@ -32,6 +32,27 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function parseApiError(payload: unknown, fallbackMessage: string): string {
+  if (!payload || typeof payload !== 'object') {
+    return fallbackMessage;
+  }
+
+  const response = payload as { detail?: unknown };
+  if (typeof response.detail === 'string') {
+    return response.detail;
+  }
+
+  if (Array.isArray(response.detail)) {
+    const firstDetail = response.detail[0] as { msg?: unknown } | undefined;
+    if (firstDetail && typeof firstDetail.msg === 'string') {
+      return firstDetail.msg;
+    }
+    return fallbackMessage;
+  }
+
+  return fallbackMessage;
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [capabilities, setCapabilities] = useState<string[]>([]);
@@ -132,8 +153,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || 'Login failed');
+        const errorPayload = await response.json();
+        throw new Error(parseApiError(errorPayload, 'Login failed'));
       }
 
       const data = await response.json();
@@ -165,8 +186,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || 'Signup failed');
+        const errorPayload = await response.json();
+        throw new Error(parseApiError(errorPayload, 'Signup failed'));
       }
 
       const data = await response.json();

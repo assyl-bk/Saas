@@ -11,6 +11,54 @@ const roleOptions: Array<{ value: UserRole; label: string }> = [
   { value: 'system_administrator', label: 'System Administrator' },
 ];
 
+function validateSignupForm(name: string, email: string, password: string): string | null {
+  const normalizedName = name.trim();
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (normalizedName.length < 2) {
+    return 'Name must be at least 2 characters long';
+  }
+
+  if (normalizedName.length > 100) {
+    return 'Name must be at most 100 characters long';
+  }
+
+  if (!/^[\p{L}' -]+$/u.test(normalizedName)) {
+    return 'Name can only contain letters, spaces, apostrophes, and hyphens';
+  }
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailPattern.test(normalizedEmail)) {
+    return 'Please enter a valid email address';
+  }
+
+  if (password.length < 8) {
+    return 'Password must be at least 8 characters long';
+  }
+
+  if (password.length > 128) {
+    return 'Password must be at most 128 characters long';
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    return 'Password must include at least one uppercase letter';
+  }
+
+  if (!/[a-z]/.test(password)) {
+    return 'Password must include at least one lowercase letter';
+  }
+
+  if (!/\d/.test(password)) {
+    return 'Password must include at least one number';
+  }
+
+  if (!/[^A-Za-z0-9]/.test(password)) {
+    return 'Password must include at least one special character';
+  }
+
+  return null;
+}
+
 export function AuthPage() {
   const { theme } = useTheme();
   const { login, signup } = useAuth();
@@ -33,6 +81,15 @@ export function AuthPage() {
     setSuccessMessage('');
     setIsLoading(true);
 
+    if (!isLogin) {
+      const validationError = validateSignupForm(formData.name, formData.email, formData.password);
+      if (validationError) {
+        setError(validationError);
+        setIsLoading(false);
+        return;
+      }
+    }
+
     try {
       console.log('Starting authentication...', { isLogin, email: formData.email });
       if (isLogin) {
@@ -48,6 +105,7 @@ export function AuthPage() {
         setFormData(prev => ({
           ...prev,
           name: '',
+          email: prev.email.trim().toLowerCase(),
           password: '',
         }));
         setIsLoading(false);
@@ -198,6 +256,8 @@ export function AuthPage() {
                       onChange={handleChange}
                       placeholder="John Doe"
                       required={!isLogin}
+                      minLength={2}
+                      maxLength={100}
                       className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all ${
                         theme === 'dark'
                           ? 'bg-white/5 border-white/10 text-white placeholder:text-muted-foreground'
@@ -247,6 +307,7 @@ export function AuthPage() {
                   onChange={handleChange}
                   placeholder="you@company.com"
                   required
+                  maxLength={254}
                   className={`w-full pl-11 pr-4 py-3 rounded-lg border focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all ${
                     theme === 'dark'
                       ? 'bg-white/5 border-white/10 text-white placeholder:text-muted-foreground'
@@ -290,7 +351,7 @@ export function AuthPage() {
               </div>
               {!isLogin && (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Must be at least 8 characters long
+                  8-128 chars with uppercase, lowercase, number, and special character
                 </p>
               )}
             </div>

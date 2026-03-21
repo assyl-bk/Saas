@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from datetime import datetime, timedelta
 from typing import cast
 from app.database import get_db
@@ -56,6 +56,12 @@ async def signup(user_data: UserCreate, db: Session = Depends(get_db)):
         db.add(new_api_key)
         db.commit()
         db.refresh(new_user)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email already registered"
+        )
     except SQLAlchemyError:
         db.rollback()
         raise HTTPException(
